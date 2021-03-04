@@ -5,18 +5,14 @@ img {
     width /***/:auto;
 }
 
-
-/* 不透明度が下がり、長さが短くなるアニメーション */
 .deplete-animation{
     animation: deplete 1s linear forwards;
 }
 
-/* 不透明度が上がり、長さが長くなるアニメーション */
 .expand-animation{
     animation: deplete 1s linear reverse forwards;
 }
 
-/* だんだん長さが減り、不透明度が落ちていく */
 @keyframes  deplete {
     0%{
         width: 100%;
@@ -27,3 +23,25 @@ img {
         opacity: 0;
     } 
 }
+.card {
+    transition: background-color .5s;
+}
+
+.card:hover {
+    background-color: #C0C0C0;
+}
+
+/* .card {
+    animation-duration: 1s;
+    animation-name: slidein;
+}
+  
+@keyframes slidein {
+from {
+    width: 200%;
+}
+
+to {
+    width: 100%;
+}
+} */
