@@ -316,6 +316,7 @@ class ViewController {
             container.append(cardCon);
             i++;
         })
+        console.log(container);
         return container;
     }
 
@@ -325,10 +326,10 @@ class ViewController {
         container.innerHTML =
         `
         <div class="d-flex justify-content-center">
-            <div class="col-6">
+            <div class="m-2">
                 <button class="btn btn-outline-primary back-btn">${backString}</button>
             </div>
-            <div class="col-6">
+            <div class="m-2">
                 <button class="btn btn-primary next-btn">${nextString}</button>
             </div>
         </div>
@@ -370,4 +371,4 @@ class UserOperation {
 UserOperation.pushButton();
 
 const insert = document.getElementById("insert");
-insert.append(ViewController.itemCard(ProductList[0], 0));
+// insert.append(ViewController.itemCard(ProductList[0], 0));
