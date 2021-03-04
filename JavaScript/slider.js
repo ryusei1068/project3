@@ -277,9 +277,9 @@ class ViewController {
     //     })
     //     return container;
     // }
-    static itemCard(ProductObjList) {
+    static itemCard(ProductObjList, index) {
         let container = document.createElement('div');
-
+        let i = 0;
         ProductObjList.forEach(productObj=> {
             let cardCon = document.createElement('div');
             cardCon.classList.add("card", "m-3");
@@ -288,10 +288,10 @@ class ViewController {
             cardBody.classList.add("card-body", "d-flex", "align-items-center", "row");
             cardBody.innerHTML += 
             `
-            <div class="card-title img col-3">
+            <div class="card-title img col-3" data-id="${index}">
                 <img src="${productObj.imgURL}" alt="productImg">
             </div>
-            <table class="table table-bordered">
+            <table class="table table-bordered" data-id="${i}">
                 <thead>
                     <tr>
                     <th>#</th>
@@ -313,8 +313,26 @@ class ViewController {
             </table>
             `
             cardCon.append(cardBody);   
-            container.append(cardCon)
+            container.append(cardCon);
+            i++;
         })
+        return container;
+    }
+
+    static backNextBtn(backString, nextString){
+        let container = document.createElement("div");
+
+        container.innerHTML =
+        `
+        <div class="d-flex justify-content-center">
+            <div class="col-6">
+                <button class="btn btn-outline-primary back-btn">${backString}</button>
+            </div>
+            <div class="col-6">
+                <button class="btn btn-primary next-btn">${nextString}</button>
+            </div>
+        </div>
+        `
         return container;
     }
 }
@@ -326,26 +344,30 @@ class UserOperation {
         button.forEach(element => {
             element.addEventListener("click", function() {
                 let value = parseInt(element.getAttribute("value"));
-                // if (value != 4) {
-                    const insert = document.getElementById("insert");
-                    insert.innerHTML = "";
-                    insert.append(ViewController.itemCard(ProductList[value-1]));
-                    
-                // }
-                // else {
-                //     const insert = document.getElementById("insert");
-                //     insert.innerHTML = "";
-                //     insert.append(ViewController.capitalizationCard(capitalizationlist));
-                // }
+                const insert = document.getElementById("insert");
+                insert.innerHTML = "";
+                insert.append(ViewController.itemCard(ProductList[value-1], value - 1));
+                UserOperation.pushItemCard(insert);
             })
         });
     }
 
-    
+    static pushItemCard(insert) {
+        let card = insert.querySelectorAll(".card");
+        card.forEach(element => {
+            element.addEventListener("click", function() {
+                let index = element.querySelectorAll(".card-title")[0].dataset.id;
+                let inIndex = element.querySelectorAll(".table")[0].dataset.id;
+                console.log(index);
+                console.log(inIndex);
+            })
+        })
+    }
+
 }
 
 
 UserOperation.pushButton();
 
 const insert = document.getElementById("insert");
-insert.append(ViewController.itemCard(ProductList[0]));
+insert.append(ViewController.itemCard(ProductList[0], 0));
