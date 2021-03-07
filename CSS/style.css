@@ -5,6 +5,8 @@ img {
     width /***/:auto;
 }
 
+
+
 .deplete-animation{
     animation: deplete 1s linear forwards;
 }
@@ -23,12 +25,3 @@ img {
         opacity: 0;
     } 
 }
-.card {
-    transition: background-color .5s;
-}
-
-.card:hover {
-    background-color: #C0C0C0;
-}
-
-

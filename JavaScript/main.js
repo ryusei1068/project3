@@ -2,6 +2,8 @@ let config = {
     userpage : document.getElementById("userpage"),
     firstPage : document.getElementById("firstpage"),
     confirm : document.getElementById("confirm"),
+    insert : document.getElementById("insert"),
+    mainPage : document.getElementById("main-page"),
 }
 
 class User{
@@ -17,10 +19,10 @@ class User{
 }
 
 let userlist = [
-    new User("Davis", "200", 4903000000, 68),
-    new User("Durant", "300", 200000000, 54),
-    new User("James", "000", 10000000, 48),
-    new User("Curry", "100", 5000000, 35),
+    new User("Davis", "200", 490300, 28),
+    new User("Durant", "300", 200000, 24),
+    new User("James", "000", 100000, 31),
+    new User("Curry", "100", 500000, 25),
 ];
 
 let userManagement = {
@@ -51,7 +53,6 @@ class Product{
         else {
             this.income = this.number_of_possessions * this.feature;
         }
-
     }
 };
 
@@ -176,30 +177,6 @@ let ProductList =
     ],
 ]
 
-
-class NavBar{
-    navbar = 
-    `
-    <nav class="navbar navbar-dark bg-dark">
-        <div class="container-fluid">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-            </button>
-        </div>
-    </nav>
-    <div class="collapse" id="navbarToggleExternalContent">
-        <div class="bg-dark p-4">
-            <div><button class="btn btn-bg-dark text-white" id="save">SAVE</button></div>
-            <div><button class="btn btn-bg-dark text-white" id="LogOut">LogOut</button></div>
-            <div><button class="btn btn-bg-dark text-white" id="History">History</button></div>
-        </div>
-    </div>
-    `;
-}
-
-
-
-
 class UserOperation {
 
     static clickYesOrNo(){
@@ -244,14 +221,82 @@ class UserOperation {
                 username,
                 password
             );
+            /*
+            新規ユーザー登録
+            */
             userlist.push(user);
             userManagement[username] = user;
+            
+            /* 
+            main-page 起動
+            */
+            ViewController.displayNone(config.userpage);
+            ViewController.buildUpMainPage(userManagement[username]);
+            // config.insert.append(ViewController.itemCard(ProductList[0], 0));
+            UserOperation.pushNavBtn(config.mainPage);
+            UserOperation.pushItemCard(config.mainPage)
         }
         else {
-            UserManagement.checkUser(userManagement, username, password);
-            console.log();
-        }
+            if (UserManagement.checkUser(userManagement, username, password)){
 
+                /* 
+                main-page 起動
+                */
+                ViewController.displayNone(config.userpage);
+                ViewController.buildUpMainPage(userManagement[username]);
+                // config.insert.append(ViewController.itemCard(ProductList[0], 0))
+                UserOperation.pushNavBtn(config.mainPage);
+                UserOperation.pushItemCard(config.mainPage);
+            }
+            else {
+                alert("Either the user ID or password is invalid");
+            }
+        }
+    }
+
+
+    static pushNavBtn() {
+        let button = document.querySelectorAll(".page-item > button");
+        button.forEach(element => {
+            element.addEventListener("click", function() {
+                let value = parseInt(element.getAttribute("value"));
+                const insert = document.querySelectorAll("#insert")[0];
+                ViewController.displayBlock(insert);
+                ViewController.resetInnnerHtml(insert);
+                insert.append(ViewController.itemCard(ProductList[value-1], value - 1));
+                UserOperation.pushItemCard();
+                ViewController.resetInnnerHtml(document.querySelectorAll("#parchase")[0])
+            })
+        });
+    }
+
+    static pushItemCard() {
+        let card = document.querySelectorAll(".card");
+        card.forEach(element => {
+            element.addEventListener("click", function() {
+                let index = element.querySelectorAll(".itemCards > .card-body > .card-title")[0].dataset.id
+                let inIndex = element.querySelectorAll(".itemCards > .card-body > .table-bordered")[0].dataset.id
+
+                const insert = document.querySelectorAll("#insert")[0];
+
+                console.log(insert);
+                ViewController.displayNone(insert)
+                const purchasePage = document.querySelectorAll("#parchase")[0]
+                ViewController.displayBlock(purchasePage);
+                purchasePage.append(ViewController.purchasePage(ProductList, index, inIndex));
+
+                UserOperation.backBtn(purchasePage);
+            })
+        })
+    }
+
+    static backBtn(purchasePage){
+        let btn = purchasePage.querySelectorAll(".back-btn")[0];
+        btn.addEventListener("click", function(){
+            const insert = document.querySelectorAll("#insert")[0];
+            ViewController.displayBlock(insert);
+            ViewController.resetInnnerHtml(purchasePage);
+        })
     }
 
 };
@@ -270,6 +315,119 @@ class ViewController {
     static changeClassEle(blotout, input, ele) {
         ele.classList.add(input);
         ele.classList.remove(blotout);
+    }
+
+    static resetInnnerHtml(ele) {
+        ele.innerHTML = "";
+    }
+
+    static itemCard(ProductObjList, index) {
+        let container = document.createElement('div');
+        let i = 0;
+        ProductObjList.forEach(productObj=> {
+            console.log(i)
+            let cardCon = document.createElement('div');
+            cardCon.classList.add("card", "m-3", "itemCards");
+
+            let cardBody = document.createElement("div");
+            cardBody.classList.add("card-body", "d-flex", "align-items-center", "row");
+            cardBody.innerHTML += 
+            `
+            <div class="card-title img col-3" data-id="${index}">
+                <img src="${productObj.imgURL}" alt="productImg">
+            </div>
+            <table class="table table-bordered" data-id="${i}">
+                <thead>
+                    <tr>
+                    <th>#</th>
+                    <th>trade name</th>
+                    <th>price</th>
+                    <th>per</th>
+                    <th>acquisition</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <th scope="row"><i class="far fa-check-circle"></i></th>
+                    <td>${productObj.itemname}</td>
+                    <td>¥${new Intl.NumberFormat().format(productObj.price)}</td>
+                    <td>+${new Intl.NumberFormat().format(productObj.income)} / ${productObj.per}</td>
+                    <td>${productObj.number_of_possessions}</td>
+                    </tr>
+                </tbody>
+            </table>
+            `
+            cardCon.append(cardBody);   
+            container.append(cardCon);
+            i++;
+        })
+        console.log(this.itemCard)
+        return container;
+    }
+
+    static backNextBtn(backString, nextString){
+        let container = document.createElement("div");
+
+        container.innerHTML =
+        `
+        <div class="d-flex justify-content-center">
+            <div class="m-2">
+                <button class="btn btn-outline-primary back-btn">${backString}</button>
+            </div>
+            <div class="m-2">
+                <button class="btn btn-primary next-btn">${nextString}</button>
+            </div>
+        </div>
+        `
+        return container;
+    }
+
+    static purchasePage(ProductObjList, index, inIndex) {
+        let productObj = ProductObjList[index][inIndex];
+
+        let card = document.createElement('div');
+        card.classList.add("card", "m-3", "bg-light");
+
+        let cardBody = document.createElement("div");
+        cardBody.classList.add("card-body", "d-felx", "align-items-center", "row");
+
+        cardBody.innerHTML = 
+        `
+        <div class="card-title img col-3" data-id="${index}">
+            <img src="${productObj.imgURL}" alt="productImg">
+        </div>
+        <table class="table table-bordered" data-id="${inIndex}">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>trade name</th>
+                    <th>price</th>
+                    <th>max purchase</th>
+                    <th>per</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row"><i class="far fa-check-circle"></i></th>
+                    <td>${productObj.itemname}</td>
+                    <td id="item-price">¥${productObj.price}</td>
+                    <td id="max-purchase">${productObj.maxpurchase}</td>
+                    <td>${productObj.feature} / ${productObj.per}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="m-2">
+            <p class="font-monospace m-1">How Many would you like to purchase?</p>
+            <input class="col-12" type="number" style="text-align: right;">
+            <div class="d-flex justify-content-end pt-3 m-2">
+                <h4 id="total-amount">Total:${0}</h4>
+            </div>
+        </div>
+        `
+        cardBody.append(this.backNextBtn("Go Back", "Purchase"));
+        card.append(cardBody);
+
+        return card;
     }
 
     
@@ -340,10 +498,151 @@ class ViewController {
         return container;
     }
 
-    static userCard() {
+    static userCard(User) {
+        let div = document.createElement("div");
+        div.classList.add("col-12" ,"col-lg-6", "d-flex", "flex-column", "align-items-center");
 
+        let table = document.createElement("table");
+        table.classList.add("table", "table-bordered", "text-white");
+
+        table.innerHTML = 
+        `
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Assets</th>
+                <th>Age</th>
+                <th>Days</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row"><i class="far fa-user"></i></th>
+                <td>${User.username}</td>
+                <td>${new Intl.NumberFormat().format(User.assets)}</td>
+                <td>${User.age}</td>
+                <td>${User.days}</td>
+            </tr>
+        </tbody>
+        `
+
+        div.append(table);
+        div.append(ViewController.insertAndPurchaseblock())
+        return div;
     }
 
+    static insertAndPurchaseblock() {
+        let div = document.createElement("div");
+        div.classList.add("bg-dark");
+        div.innerHTML = 
+        `
+            <div class="list-group" id="insert"></div>
+            <div id="parchase" class=""></div>
+        `
+        return div;
+    }
+
+    static siteMap() {
+        let nav = document.createElement("nav");
+
+        nav.innerHTML = 
+        `
+        <ul class="pagination">
+            <li class="page-item m-1">
+                <button type="button" class="btn btn-outline-light"  value="1">1</button>
+            </li>
+            <li class="page-item m-1">
+                <button type="button" class="btn btn-outline-light" value="2">2</button>
+            </li>
+            <li class="page-item m-1">
+                <button type="button" class="btn btn-outline-light" value="3">3</button>
+            </li>
+            <li class="page-item m-1">
+                <button type="button" class="btn btn-outline-light" value="4">4</button>
+            </li>
+        </ul>
+        `
+        return nav;
+    }
+
+    static navBar() {
+        let navCon = document.createElement("div");
+        let nav = document.createElement("nav");
+        nav.classList.add("navbar", "navbar-dark", "bg-dark");
+
+        nav.innerHTML = 
+        `
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+        `
+
+        let div = document.createElement("div");
+        div.classList.add("collapse");
+        div.setAttribute("id", "navbarToggleExternalContent");
+        div.innerHTML =
+        `
+        <div class="bg-dark p-4">
+            <div><button class="btn btn-bg-dark text-white" id="save">SAVE</button></div>
+            <div><button class="btn btn-bg-dark text-white" id="LogOut">LogOut</button></div>
+            <div><button class="btn btn-bg-dark text-white" id="History">History</button></div>
+        </div>
+        `
+
+        navCon.append(nav);
+        navCon.append(div);
+        return navCon;
+    }
+
+    static clickburgerBox() {
+        let div = document.createElement("div");
+        div.classList.add("col-12", "col-lg-6", "d-flex");
+
+        let innerDiv = document.createElement("div");
+        innerDiv.classList.add("col-12", "d-flex", "justify-content-center", "justify-content-center",  "align-items-center", "flex-column", "bg-dark", "font-monospace");
+
+        innerDiv.innerHTML = 
+        `
+        <div class="bg-light d-flex justify-content-center align-items-center flex-column">
+            <h5>Burgers</h5>
+            <p>$25 per Clicke</p>
+            <div class="countBurger d-flex justify-content-center align-items-center flex-column">
+                <h5 class="burgercount text-info">Clicke Here ↓↓↓↓</h5>
+                <img src="https://cdn.pixabay.com/photo/2014/04/02/17/00/burger-307648_960_720.png" class="burgerclick burgerimg py-2 hover" id="burgerclick">
+            </div>
+        </div>
+        `
+        div.append(innerDiv);
+
+        return div;
+    }
+
+    static containerRow() {
+        let div = document.createElement("div");
+        div.classList.add("container","mt-3");
+        div.innerHTML = 
+        `
+            <h2 class="text-white text-center">Clicker Empire Game</h2>
+            <div class="row mt-3"></div>
+        `
+        return div;
+    }
+
+    static buildUpMainPage(User) {
+        const mainpage = config.mainPage;
+        mainpage.append(ViewController.navBar());
+        mainpage.append(ViewController.containerRow());
+
+        let classRow = mainpage.querySelectorAll(".container > .row")[0];
+        classRow.append(ViewController.userCard(User));
+        classRow.append(ViewController.itemCard(ProductList[0], 0));
+        classRow.append(ViewController.clickburgerBox());
+        console.log(classRow);
+
+    }
     
 }
 
@@ -352,11 +651,9 @@ class UserManagement {
     static checkUser(userManagement, username, password) {
         let user = userManagement[username];
         if (user.password != password) {
-            alert("Either the user ID or password is invalid");
             return false;
         }
         else {
-            console.log("OK");
             return true;
         }
 
@@ -366,3 +663,89 @@ class UserManagement {
 
 
 UserOperation.clickYesOrNo();
+
+/*
+`
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+    <div class="collapse" id="navbarToggleExternalContent">
+        <div class="bg-dark p-4">
+            <div><button class="btn btn-bg-dark text-white" id="save">SAVE</button></div>
+            <div><button class="btn btn-bg-dark text-white" id="LogOut">LogOut</button></div>
+            <div><button class="btn btn-bg-dark text-white" id="History">History</button></div>
+        </div>
+    </div>
+
+    <div class="container mt-3">
+        <h2 class="text-white text-center">Clicker Empire Game</h2>
+        <div class="row mt-3">
+            <div class="col-12 col-lg-6 d-flex flex-column align-items-center">
+                <table class="table table-bordered text-white">
+                    <thead>
+                        <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Assets</th>
+                        <th>Age</th>
+                        <th>Days</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                        <th scope="row"><i class="far fa-user"></i></th>
+                        <td>Mark</td>
+                        <td>Otto</td>
+                        <td>Otto</td>
+                        <td>Otto</td>
+                        </tr>
+                    </tbody>
+                </table>   
+                <div class="bg-light">
+                    <div class="list-group" id="insert">
+                        
+                    </div>
+                    <div id="parchase" class="">
+
+                    </div>
+                </div>
+                <nav aria-label="Page navigation example" class="mt-3" id="navBtn">
+                    <ul class="pagination">
+                        <li class="page-item m-1">
+                            <button type="button" class="btn btn-outline-light"  value="1">1</button>
+                        </li>
+                        <li class="page-item m-1">
+                            <button type="button" class="btn btn-outline-light" value="2">2</button>
+                        </li>
+                        <li class="page-item m-1">
+                            <button type="button" class="btn btn-outline-light" value="3">3</button>
+                        </li>
+                        <li class="page-item m-1">
+                            <button type="button" class="btn btn-outline-light" value="4">4</button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="col-12 col-lg-6 d-flex ">
+                <div class="col-12 d-flex justify-content-center  align-items-center flex-column bg-dark font-monospace">
+                    <div class="bg-light d-flex justify-content-center align-items-center flex-column">
+                        <h5>Burgers</h5>
+                        <p>$25 per Clicke</p>
+                        <div class="countBurger d-flex justify-content-center align-items-center flex-column">
+                            <h5 class="burgercount text-info">Clicke Here ↓↓↓↓</h5>
+                            <img src="https://cdn.pixabay.com/photo/2014/04/02/17/00/burger-307648_960_720.png" class="burgerclick burgerimg py-2 hover" id="burgerclick">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+`
+*/

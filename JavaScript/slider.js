@@ -192,7 +192,18 @@ let ProductList =
 
 class ViewController {
 
+    static displayNone(ele) {
+        ele.classList.add("d-none");
+        ele.classList.remove("d-block");
+    }
+    static displayBlock(ele) {
+        ele.classList.add("d-block");
+        ele.classList.remove("d-none");
+    }
 
+    static resetInnnerHtml(ele) {
+        ele.innerHTML = "";
+    }
 
     // static immovalesCard(ImmmovalesObjList) {
 
@@ -336,19 +347,112 @@ class ViewController {
         `
         return container;
     }
+
+    static purchasePage(ProductObjList, index, inIndex) {
+        let productObj = ProductObjList[index][inIndex];
+        /*
+        <div class="card m-3 bg-light">
+            <div class="card-body d-flex align-items-center row">
+                <div class="card-title img col-3" data-id="0">
+                    <img src="https://cdn.pixabay.com/photo/2019/06/30/20/09/grill-4308709_960_720.png" alt="productImg">
+                </div>
+                <table class="table table-bordered" data-id="0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>trade name</th>
+                            <th>price</th>
+                            <th>max purchase</th>
+                            <th>per</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row"><i class="far fa-check-circle"></i></th>
+                            <td>Flip machine</td>
+                            <td>¥15,000</td>
+                            <td>+25</td>
+                            <td>32000 / sec</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="m-2">
+                <p class="font-monospace m-1">How Many would you like to purchase?</p>
+                <input class="col-12" type="text">
+                <div class="d-flex justify-content-end pt-3 m-2">
+                    <h4 id="total-amount">Total:¥200000</h4>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center">
+                <div class="m-2">
+                    <button class="btn btn-outline-primary back-btn">Go Back</button>
+                </div>
+                <div class="m-2">
+                    <button class="btn btn-primary next-btn">Purchase</button>
+                </div>
+            </div>
+        </div>
+        */
+        let card = document.createElement('div');
+        card.classList.add("card", "m-3", "bg-light");
+
+        let cardBody = document.createElement("div");
+        cardBody.classList.add("card-body", "d-felx", "align-items-center", "row");
+
+        cardBody.innerHTML = 
+        `
+        <div class="card-title img col-3" data-id="${index}">
+            <img src="${productObj.imgURL}" alt="productImg">
+        </div>
+        <table class="table table-bordered" data-id="${inIndex}">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>trade name</th>
+                    <th>price</th>
+                    <th>max purchase</th>
+                    <th>per</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row"><i class="far fa-check-circle"></i></th>
+                    <td>${productObj.itemname}</td>
+                    <td id="item-price">¥${productObj.price}</td>
+                    <td id="max-purchase">${productObj.maxpurchase}</td>
+                    <td>${productObj.feature} / ${productObj.per}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="m-2">
+            <p class="font-monospace m-1">How Many would you like to purchase?</p>
+            <input class="col-12" type="number" style="text-align: right;">
+            <div class="d-flex justify-content-end pt-3 m-2">
+                <h4 id="total-amount">Total:${0}</h4>
+            </div>
+        </div>
+        `
+        cardBody.append(this.backNextBtn("Go Back", "Purchase"));
+        card.append(cardBody);
+
+        return card;
+    }
 }
 
 
 class UserOperation {
-    static pushButton() {
+    static pushNavBtn() {
         let button = document.querySelectorAll(".page-item > button");
         button.forEach(element => {
             element.addEventListener("click", function() {
                 let value = parseInt(element.getAttribute("value"));
                 const insert = document.getElementById("insert");
-                insert.innerHTML = "";
+                ViewController.displayBlock(insert);
+                ViewController.resetInnnerHtml(insert);
                 insert.append(ViewController.itemCard(ProductList[value-1], value - 1));
                 UserOperation.pushItemCard(insert);
+                ViewController.resetInnnerHtml(document.getElementById("parchase"))
             })
         });
     }
@@ -359,16 +463,30 @@ class UserOperation {
             element.addEventListener("click", function() {
                 let index = element.querySelectorAll(".card-title")[0].dataset.id;
                 let inIndex = element.querySelectorAll(".table")[0].dataset.id;
-                console.log(index);
-                console.log(inIndex);
+                const insert = document.getElementById("insert");
+                ViewController.displayNone(insert)
+                const purchasePage = document.getElementById("parchase")
+                ViewController.displayBlock(purchasePage);
+                purchasePage.append(ViewController.purchasePage(ProductList, index, inIndex));
+
+                UserOperation.backBtn(purchasePage);
             })
+        })
+    }
+
+    static backBtn(purchasePage){
+        let btn = purchasePage.querySelectorAll(".back-btn")[0];
+        btn.addEventListener("click", function(){
+            const insert = document.getElementById("insert");
+            ViewController.displayBlock(insert);
+            ViewController.resetInnnerHtml(purchasePage);
         })
     }
 
 }
 
 
-UserOperation.pushButton();
+UserOperation.pushNavBtn();
 
 const insert = document.getElementById("insert");
-// insert.append(ViewController.itemCard(ProductList[0], 0));
+insert.append(ViewController.itemCard(ProductList[0], 0));
