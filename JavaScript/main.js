@@ -29,7 +29,7 @@ class Product{
     }
 
     etf_stock_price(num) {
-        this.price = this.price * num * 0.1 + this.price;
+        this.price = parseInt(this.price * num * 1.1);
     }
 
     number_of_items_purchased(number_of_items_purchased) {
